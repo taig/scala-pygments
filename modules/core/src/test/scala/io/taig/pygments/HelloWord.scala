@@ -2,8 +2,8 @@ package io.taig.pygments
 
 object HelloWord {
   val Java = """class HelloWorld {
-               |  static public void main( String args[] ) {
-               |    System.out.println( "Hello World!" );
+               |  static public void main(String args[]) {
+               |    System.out.println("Hello World!");
                |  }
                |}""".stripMargin
 

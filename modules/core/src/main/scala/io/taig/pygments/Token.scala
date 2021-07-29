@@ -19,12 +19,23 @@ object Token {
     sealed abstract class Variant extends Product with Serializable
 
     object Variant {
+      case object Attribute extends Variant
       case object Class extends Variant
       case object Function extends Variant
+      case object Other extends Variant
     }
   }
 
-  case object Keyword extends Token
+  final case class Keyword(variant: Option[Keyword.Variant]) extends Token
+
+  object Keyword {
+    sealed abstract class Variant extends Product with Serializable
+
+    object Variant {
+      case object Declaration extends Variant
+      case object Type extends Variant
+    }
+  }
 
   final case class Literal(variant: Literal.Variant) extends Token
 
@@ -32,7 +43,15 @@ object Token {
     sealed abstract class Variant extends Product with Serializable
 
     object Variant {
-      case object String extends Variant
+      final case class String(variant: Option[String.Variant]) extends Variant
+
+      object String {
+        sealed abstract class Variant extends Product with Serializable
+
+        object Variant {
+          final case object Double extends Variant
+        }
+      }
     }
   }
 
@@ -44,14 +63,19 @@ object Token {
 
   val parse: String => Option[Token] = value =>
     PartialFunction.condOpt(value.substring(6)) {
-      case "Comment.Single" => Comment(Comment.Variant.Single)
-      case "Name"           => Name(None)
-      case "Name.Class"     => Name(Some(Name.Variant.Class))
-      case "Name.Function"  => Name(Some(Name.Variant.Function))
-      case "Keyword"        => Keyword
-      case "Literal.String" => Literal(Literal.Variant.String)
-      case "Operator"       => Operator
-      case "Punctuation"    => Punctuation
-      case "Text"           => Text
+      case "Comment.Single"        => Comment(Comment.Variant.Single)
+      case "Name"                  => Name(None)
+      case "Name.Attribute"        => Name(Some(Name.Variant.Attribute))
+      case "Name.Class"            => Name(Some(Name.Variant.Class))
+      case "Name.Function"         => Name(Some(Name.Variant.Function))
+      case "Name.Other"            => Name(Some(Name.Variant.Other))
+      case "Keyword"               => Keyword(None)
+      case "Keyword.Declaration"   => Keyword(Some(Keyword.Variant.Declaration))
+      case "Keyword.Type"          => Keyword(Some(Keyword.Variant.Type))
+      case "Literal.String"        => Literal(Literal.Variant.String(None))
+      case "Literal.String.Double" => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Double)))
+      case "Operator"              => Operator
+      case "Punctuation"           => Punctuation
+      case "Text"                  => Text
     }
 }
