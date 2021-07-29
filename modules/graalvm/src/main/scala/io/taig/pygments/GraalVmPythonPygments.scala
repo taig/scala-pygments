@@ -7,7 +7,7 @@ import org.graalvm.polyglot.{Context, PolyglotAccess}
 import java.util.concurrent.{Executors, TimeUnit}
 import scala.concurrent.ExecutionContext
 
-final class GraalPythonPygments[F[_]](context: Context, execution: ExecutionContext)(implicit F: Async[F])
+final class GraalVmPythonPygments[F[_]](context: Context, execution: ExecutionContext)(implicit F: Async[F])
     extends Pygments[F] {
   override def highlight(language: String, code: String): F[List[Fragment]] = {
     val fa = F.defer {
@@ -50,7 +50,7 @@ final class GraalPythonPygments[F[_]](context: Context, execution: ExecutionCont
   }
 }
 
-object GraalPythonPygments {
+object GraalVmPythonPygments {
   def apply[F[_]](context: Context)(implicit F: Async[F]): Resource[F, Pygments[F]] =
     Resource
       .make(F.delay(Executors.newSingleThreadExecutor())) { executor =>
@@ -61,7 +61,7 @@ object GraalPythonPygments {
         }
       }
       .map(ExecutionContext.fromExecutorService)
-      .map(new GraalPythonPygments[F](context, _))
+      .map(new GraalVmPythonPygments[F](context, _))
 
   def default[F[_]](executable: String)(implicit F: Async[F]): Resource[F, Pygments[F]] = {
     val context = F.delay {
@@ -75,6 +75,6 @@ object GraalPythonPygments {
         .build()
     }
 
-    Resource.fromAutoCloseable(context).flatMap(GraalPythonPygments[F])
+    Resource.fromAutoCloseable(context).flatMap(GraalVmPythonPygments[F])
   }
 }

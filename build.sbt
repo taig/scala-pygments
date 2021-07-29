@@ -16,15 +16,15 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   .settings(
     name := "scala-pygments",
     libraryDependencies ++=
-      "org.typelevel" %% "cats-effect" % Version.CatsEffect % "test" ::
-        "org.typelevel" %% "munit-cats-effect-3" % Version.MunitCatsEffect % "test" ::
+      "org.typelevel" %%% "cats-effect" % Version.CatsEffect % "test" ::
+        "org.typelevel" %%% "munit-cats-effect-3" % Version.MunitCatsEffect % "test" ::
         Nil
   )
 
-lazy val graal = project
-  .in(file("modules/graal"))
+lazy val graalvm = project
+  .in(file("modules/graalvm"))
   .settings(
-    name := "scala-pygments-graal",
+    name := "scala-pygments-graalvm",
     libraryDependencies ++=
       "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
         Nil
