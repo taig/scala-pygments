@@ -10,7 +10,8 @@ ThisBuild / crossScalaVersions := Version.Scala2 :: Version.Scala3 :: Nil
 
 noPublishSettings
 
-lazy val core = project
+lazy val core = crossProject(JVMPlatform, JSPlatform)
+  .crossType(CrossType.Pure)
   .in(file("modules/core"))
   .settings(
     name := "scala-pygments",
@@ -28,4 +29,4 @@ lazy val graal = project
       "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
         Nil
   )
-  .dependsOn(core % "compile->compile;test->test")
+  .dependsOn(core.jvm % "compile->compile;test->test")
