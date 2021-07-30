@@ -1,25 +1,22 @@
 package io.taig.pygments;
 
-import cats.effect.{Async, Resource}
+import cats.effect.std.Semaphore
+import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
-import org.graalvm.polyglot.{Context, PolyglotAccess}
+import org.graalvm.polyglot.{Context, HostAccess, PolyglotAccess}
 
-import java.util.concurrent.{Executors, TimeUnit}
-import scala.concurrent.ExecutionContext
-
-final class GraalVmPythonPygments[F[_]](context: Context, execution: ExecutionContext)(implicit F: Async[F])
-    extends Pygments[F] {
-  override def highlight(language: String, code: String): F[List[Fragment]] = {
-    val fa = F.defer {
+final class GraalVmPythonPygments[F[_]](lock: Semaphore[F])(context: Context)(implicit F: Sync[F]) extends Pygments[F] {
+  override def highlight(lexer: String, code: String): F[List[Fragment]] = lock.permit.surround {
+    F.blocking {
       context.getPolyglotBindings.putMember("code", code)
 
       val script =
         s"""from pygments import highlight
-           |from pygments.lexers import ${language}Lexer
+           |from pygments.lexers import ${lexer}Lexer
            |from pygments.formatters import RawTokenFormatter
            |import polyglot
            |
-           |highlight(polyglot.import_value('code'), ${language}Lexer(), RawTokenFormatter())""".stripMargin
+           |highlight(polyglot.import_value('code'), ${lexer}Lexer(), RawTokenFormatter())""".stripMargin
 
       val result = context.eval("python", script)
 
@@ -32,49 +29,39 @@ final class GraalVmPythonPygments[F[_]](context: Context, execution: ExecutionCo
         index += 1
       }
 
+      bytes
+    }.flatMap { bytes =>
       new String(bytes).split('\n').toList.traverse { value =>
         value.indexOf('\t') match {
           case -1 => F.raiseError[Fragment](new IllegalStateException("Unexpected pygments format"))
           case index =>
             val token = value.substring(0, index)
             val code = value.substring(index + 1)
-            Token
-              .parse(token)
-              .liftTo[F](new IllegalStateException(s"Unknown token '$value'"))
-              .map(Fragment(_, code))
+            Token.parse(token).liftTo[F](new IllegalStateException(s"Unknown token '$value'")).map(Fragment(_, code))
         }
       }
     }
-
-    F.evalOn(fa, execution)
   }
 }
 
 object GraalVmPythonPygments {
-  def apply[F[_]](context: Context)(implicit F: Async[F]): Resource[F, Pygments[F]] =
-    Resource
-      .make(F.delay(Executors.newSingleThreadExecutor())) { executor =>
-        F.delay {
-          executor.shutdown()
-          executor.awaitTermination(10, TimeUnit.SECONDS)
-          ()
-        }
-      }
-      .map(ExecutionContext.fromExecutorService)
-      .map(new GraalVmPythonPygments[F](context, _))
+  def apply[F[_]](context: Context)(implicit F: Async[F]): F[Pygments[F]] =
+    Semaphore[F](1).map(new GraalVmPythonPygments[F](_)(context))
 
   def default[F[_]](executable: String)(implicit F: Async[F]): Resource[F, Pygments[F]] = {
     val context = F.delay {
       Context
         .newBuilder("python")
         .allowExperimentalOptions(true)
+        .allowHostAccess(HostAccess.ALL)
         .allowIO(true)
+        .allowNativeAccess(true)
+        .allowPolyglotAccess(PolyglotAccess.ALL)
         .option("python.ForceImportSite", "true")
         .option("python.Executable", executable)
-        .allowPolyglotAccess(PolyglotAccess.ALL)
         .build()
     }
 
-    Resource.fromAutoCloseable(context).flatMap(GraalVmPythonPygments[F])
+    Resource.fromAutoCloseable(context).evalMap(GraalVmPythonPygments[F])
   }
 }
