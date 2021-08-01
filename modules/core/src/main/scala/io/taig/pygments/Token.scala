@@ -9,12 +9,16 @@ object Token {
     sealed abstract class Variant extends Product with Serializable
 
     object Variant {
+      case object Hashbang extends Variant
       case object Multiline extends Variant
       case object Single extends Variant
       case object Preproc extends Variant
       case object PreprocFile extends Variant
+      case object Special extends Variant
     }
   }
+
+  case object Error extends Token
 
   final case class Name(variant: Option[Name.Variant]) extends Token
 
@@ -36,13 +40,44 @@ object Token {
 
       case object Class extends Variant
 
+      case object Constant extends Variant
+
+      case object Entity extends Variant
+
       case object Decorator extends Variant
 
-      case object Function extends Variant
+      case object Exception extends Variant
+
+      final case class Function(variant: Option[Function.Variant]) extends Variant
+
+      object Function {
+        sealed abstract class Variant extends Product with Serializable
+
+        object Variant {
+          case object Magic extends Variant
+        }
+      }
+
+      case object Label extends Variant
+
+      case object Namespace extends Variant
+
+      case object Property extends Variant
 
       case object Tag extends Variant
 
-      case object Variable extends Variant
+      final case class Variable(variant: Option[Variable.Variant]) extends Variant
+
+      object Variable {
+        sealed abstract class Variant extends Product with Serializable
+
+        object Variant {
+          case object Class extends Variant
+          case object Global extends Variant
+          case object Instance extends Variant
+          case object Magic extends Variant
+        }
+      }
 
       case object Other extends Variant
     }
@@ -54,6 +89,7 @@ object Token {
     sealed abstract class Variant extends Product with Serializable
 
     object Variant {
+      case object Constant extends Variant
       case object Declaration extends Variant
       case object Namespace extends Variant
       case object Pseudo extends Variant
@@ -74,7 +110,23 @@ object Token {
         sealed abstract class Variant extends Product with Serializable
 
         object Variant {
-          final case object Integer extends Variant
+          case object Bin extends Variant
+
+          case object Float extends Variant
+
+          case object Hex extends Variant
+
+          case class Integer(variant: Option[Integer.Variant]) extends Variant
+
+          object Integer {
+            sealed abstract class Variant extends Product with Serializable
+
+            object Variant {
+              case object Long extends Variant
+            }
+          }
+
+          case object Oct extends Variant
         }
       }
 
@@ -84,9 +136,19 @@ object Token {
         sealed abstract class Variant extends Product with Serializable
 
         object Variant {
-          final case object Double extends Variant
-          final case object Escape extends Variant
-          final case object Single extends Variant
+          case object Affix extends Variant
+          case object Backtick extends Variant
+          case object Char extends Variant
+          case object Delimiter extends Variant
+          case object Doc extends Variant
+          case object Double extends Variant
+          case object Escape extends Variant
+          case object Heredoc extends Variant
+          case object Other extends Variant
+          case object Interpol extends Variant
+          case object Regex extends Variant
+          case object Single extends Variant
+          case object Symbol extends Variant
         }
       }
     }
@@ -118,37 +180,69 @@ object Token {
 
   val parse: String => Option[Token] = value =>
     PartialFunction.condOpt(value.substring(6)) {
-      case "Comment"                => Comment(None)
-      case "Comment.Multiline"      => Comment(Some(Comment.Variant.Multiline))
-      case "Comment.Preproc"        => Comment(Some(Comment.Variant.Preproc))
-      case "Comment.PreprocFile"    => Comment(Some(Comment.Variant.PreprocFile))
-      case "Comment.Single"         => Comment(Some(Comment.Variant.Single))
-      case "Name"                   => Name(None)
-      case "Name.Attribute"         => Name(Some(Name.Variant.Attribute))
-      case "Name.Builtin"           => Name(Some(Name.Variant.Builtin(None)))
-      case "Name.Builtin.Pseudo"    => Name(Some(Name.Variant.Builtin(Some(Name.Variant.Builtin.Variant.Pseudo))))
-      case "Name.Class"             => Name(Some(Name.Variant.Class))
-      case "Name.Decorator"         => Name(Some(Name.Variant.Decorator))
-      case "Name.Function"          => Name(Some(Name.Variant.Function))
-      case "Name.Tag"               => Name(Some(Name.Variant.Tag))
-      case "Name.Variable"          => Name(Some(Name.Variant.Variable))
-      case "Name.Other"             => Name(Some(Name.Variant.Other))
-      case "Keyword"                => Keyword(None)
-      case "Keyword.Declaration"    => Keyword(Some(Keyword.Variant.Declaration))
-      case "Keyword.Namespace"      => Keyword(Some(Keyword.Variant.Namespace))
-      case "Keyword.Pseudo"         => Keyword(Some(Keyword.Variant.Pseudo))
-      case "Keyword.Reserved"       => Keyword(Some(Keyword.Variant.Reserved))
-      case "Keyword.Type"           => Keyword(Some(Keyword.Variant.Type))
-      case "Literal.Number.Integer" => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Integer)))
-      case "Literal.String"         => Literal(Literal.Variant.String(None))
-      case "Literal.String.Double"  => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Double)))
-      case "Literal.String.Escape"  => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Escape)))
-      case "Literal.String.Single"  => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Single)))
-      case "Operator"               => Operator(None)
-      case "Operator.Word"          => Operator(Some(Operator.Variant.Word))
-      case "Other"                  => Other
-      case "Punctuation"            => Punctuation
-      case "Text"                   => Text(None)
-      case "Text.Whitespace"        => Text(Some(Text.Variant.Whitespace))
+      // format: off
+      case "Comment"                     => Comment(None)
+      case "Comment.Hashbang"            => Comment(Some(Comment.Variant.Hashbang))
+      case "Comment.Multiline"           => Comment(Some(Comment.Variant.Multiline))
+      case "Comment.Preproc"             => Comment(Some(Comment.Variant.Preproc))
+      case "Comment.PreprocFile"         => Comment(Some(Comment.Variant.PreprocFile))
+      case "Comment.Single"              => Comment(Some(Comment.Variant.Single))
+      case "Comment.Special"             => Comment(Some(Comment.Variant.Special))
+      case "Error"                       => Error
+      case "Keyword"                     => Keyword(None)
+      case "Keyword.Constant"            => Keyword(Some(Keyword.Variant.Constant))
+      case "Keyword.Declaration"         => Keyword(Some(Keyword.Variant.Declaration))
+      case "Keyword.Namespace"           => Keyword(Some(Keyword.Variant.Namespace))
+      case "Keyword.Pseudo"              => Keyword(Some(Keyword.Variant.Pseudo))
+      case "Keyword.Reserved"            => Keyword(Some(Keyword.Variant.Reserved))
+      case "Keyword.Type"                => Keyword(Some(Keyword.Variant.Type))
+      case "Literal.Number.Bin"          => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Bin)))
+      case "Literal.Number.Float"        => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Float)))
+      case "Literal.Number.Hex"          => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Hex)))
+      case "Literal.Number.Integer"      => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Integer(None))))
+      case "Literal.Number.Integer.Long" => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Integer(Some(Literal.Variant.Number.Variant.Integer.Variant.Long)))))
+      case "Literal.Number.Oct"          => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Oct)))
+      case "Literal.String"              => Literal(Literal.Variant.String(None))
+      case "Literal.String.Affix"        => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Affix)))
+      case "Literal.String.Backtick"     => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Backtick)))
+      case "Literal.String.Char"         => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Char)))
+      case "Literal.String.Delimiter"    => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Delimiter)))
+      case "Literal.String.Doc"          => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Doc)))
+      case "Literal.String.Double"       => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Double)))
+      case "Literal.String.Escape"       => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Escape)))
+      case "Literal.String.Heredoc"      => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Heredoc)))
+      case "Literal.String.Interpol"     => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Interpol)))
+      case "Literal.String.Other"        => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Other)))
+      case "Literal.String.Regex"        => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Regex)))
+      case "Literal.String.Single"       => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Single)))
+      case "Literal.String.Symbol"       => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Symbol)))
+      case "Name"                        => Name(None)
+      case "Name.Attribute"              => Name(Some(Name.Variant.Attribute))
+      case "Name.Builtin"                => Name(Some(Name.Variant.Builtin(None)))
+      case "Name.Builtin.Pseudo"         => Name(Some(Name.Variant.Builtin(Some(Name.Variant.Builtin.Variant.Pseudo))))
+      case "Name.Class"                  => Name(Some(Name.Variant.Class))
+      case "Name.Constant"               => Name(Some(Name.Variant.Constant))
+      case "Name.Decorator"              => Name(Some(Name.Variant.Decorator))
+      case "Name.Entity"                 => Name(Some(Name.Variant.Entity))
+      case "Name.Exception"              => Name(Some(Name.Variant.Exception))
+      case "Name.Function"               => Name(Some(Name.Variant.Function(None)))
+      case "Name.Function.Magic"         => Name(Some(Name.Variant.Function(Some(Name.Variant.Function.Variant.Magic))))
+      case "Name.Label"                  => Name(Some(Name.Variant.Label))
+      case "Name.Namespace"              => Name(Some(Name.Variant.Namespace))
+      case "Name.Other"                  => Name(Some(Name.Variant.Other))
+      case "Name.Property"               => Name(Some(Name.Variant.Property))
+      case "Name.Tag"                    => Name(Some(Name.Variant.Tag))
+      case "Name.Variable"               => Name(Some(Name.Variant.Variable(None)))
+      case "Name.Variable.Class"         => Name(Some(Name.Variant.Variable(Some(Name.Variant.Variable.Variant.Class))))
+      case "Name.Variable.Global"        => Name(Some(Name.Variant.Variable(Some(Name.Variant.Variable.Variant.Global))))
+      case "Name.Variable.Instance"      => Name(Some(Name.Variant.Variable(Some(Name.Variant.Variable.Variant.Instance))))
+      case "Name.Variable.Magic"         => Name(Some(Name.Variant.Variable(Some(Name.Variant.Variable.Variant.Magic))))
+      case "Operator"                    => Operator(None)
+      case "Operator.Word"               => Operator(Some(Operator.Variant.Word))
+      case "Other"                       => Other
+      case "Punctuation"                 => Punctuation
+      case "Text"                        => Text(None)
+      case "Text.Whitespace"             => Text(Some(Text.Variant.Whitespace))
+      // format: on
     }
 }

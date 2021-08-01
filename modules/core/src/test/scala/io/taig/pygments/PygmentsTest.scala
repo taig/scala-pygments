@@ -4,6 +4,8 @@ import cats.effect.{IO, Resource}
 import cats.syntax.all._
 import munit.CatsEffectSuite
 
+import scala.io.Source
+
 abstract class PygmentsTest extends CatsEffectSuite {
   def pygments: Resource[IO, Pygments[IO]]
 
@@ -172,6 +174,48 @@ abstract class PygmentsTest extends CatsEffectSuite {
   test("Swift") {
     pygments
       .use(_.highlight("Swift", HelloWord.Swift))
+      .map(obtained => assert(obtained.nonEmpty))
+  }
+
+  test("Build.hs") {
+    IO.blocking(Source.fromInputStream(getClass.getResourceAsStream("/Build.hs")).mkString)
+      .flatMap(code => pygments.use(_.highlight("Haskell", code)))
+      .map(obtained => assert(obtained.nonEmpty))
+  }
+
+  test("core.rb") {
+    IO.blocking(Source.fromInputStream(getClass.getResourceAsStream("/core.rb")).mkString)
+      .flatMap(code => pygments.use(_.highlight("Ruby", code)))
+      .map(obtained => assert(obtained.nonEmpty))
+  }
+
+  test("Expr.java") {
+    IO.blocking(Source.fromInputStream(getClass.getResourceAsStream("/Expr.java")).mkString)
+      .flatMap(code => pygments.use(_.highlight("Java", code)))
+      .map(obtained => assert(obtained.nonEmpty))
+  }
+
+  test("module.py") {
+    IO.blocking(Source.fromInputStream(getClass.getResourceAsStream("/module.py")).mkString)
+      .flatMap(code => pygments.use(_.highlight("Python", code)))
+      .map(obtained => assert(obtained.nonEmpty))
+  }
+
+  test("MonadCancel.scala") {
+    IO.blocking(Source.fromInputStream(getClass.getResourceAsStream("/MonadCancel.scala")).mkString)
+      .flatMap(code => pygments.use(_.highlight("Scala", code)))
+      .map(obtained => assert(obtained.nonEmpty))
+  }
+
+  test("ReactDOM.js") {
+    IO.blocking(Source.fromInputStream(getClass.getResourceAsStream("/ReactDOM.js")).mkString)
+      .flatMap(code => pygments.use(_.highlight("Javascript", code)))
+      .map(obtained => assert(obtained.nonEmpty))
+  }
+
+  test("Resource.scala") {
+    IO.blocking(Source.fromInputStream(getClass.getResourceAsStream("/Resource.scala")).mkString)
+      .flatMap(code => pygments.use(_.highlight("Scala", code)))
       .map(obtained => assert(obtained.nonEmpty))
   }
 
