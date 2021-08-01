@@ -8,8 +8,8 @@ val Version = new {
 ThisBuild / crossScalaVersions := Version.Scala2 :: Version.Scala3 :: Nil
 ThisBuild / developers := List(Developer("taig", "Niklas Klein", "mail@taig.io", url("https://taig.io/")))
 ThisBuild / dynverVTagPrefix := false
-ThisBuild / homepage := Some(url("https://github.com/taig/scala-linguist/"))
-ThisBuild / licenses := List("MIT" -> url("https://raw.githubusercontent.com/taig/scala-linguist/main/LICENSE"))
+ThisBuild / homepage := Some(url("https://github.com/taig/scala-pygments/"))
+ThisBuild / licenses := List("MIT" -> url("https://raw.githubusercontent.com/taig/scala-pygments/main/LICENSE"))
 ThisBuild / scalaVersion := Version.Scala2
 ThisBuild / versionScheme := Some("early-semver")
 
@@ -20,7 +20,7 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
   .in(file("modules/core"))
   .settings(
-    name := "scala-pygments",
+    name := "scala-pygments-core",
     libraryDependencies ++=
       "org.typelevel" %%% "cats-effect" % Version.CatsEffect % "test" ::
         "org.typelevel" %%% "munit-cats-effect-3" % Version.MunitCatsEffect % "test" ::
