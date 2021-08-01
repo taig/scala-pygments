@@ -6,7 +6,7 @@ import cats.syntax.all._
 import org.graalvm.polyglot.{Context, HostAccess, PolyglotAccess}
 
 final class GraalVmPythonPygments[F[_]](lock: Semaphore[F])(context: Context)(implicit F: Sync[F]) extends Pygments[F] {
-  override def highlight(lexer: String, code: String): F[List[Fragment]] = lock.permit.surround {
+  override def tokenize(lexer: String, code: String): F[List[Fragment]] = lock.permit.surround {
     F.blocking {
       context.getPolyglotBindings.putMember("code", code)
 

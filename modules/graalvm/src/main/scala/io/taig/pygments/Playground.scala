@@ -8,7 +8,7 @@ object Playground extends IOApp.Simple {
     GraalVmPythonPygments
       .default[IO](python)
       .use { pygments =>
-        pygments.highlight(
+        pygments.tokenize(
           "Scala",
           """// Hello world in Scala
             |
