@@ -1,4 +1,4 @@
-package io.taig.pygments;
+package io.taig.pygments
 
 import cats.effect.std.Semaphore
 import cats.effect.{Async, Resource, Sync}
