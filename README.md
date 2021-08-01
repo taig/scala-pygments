@@ -46,7 +46,7 @@ Currently, this library only exposes a single method, allowing to tokenize sourc
 import cats.effect.{IO, IOApp}
 import io.taig.pygments.GraalVmPythonPygments
 
-object Playground extends IOApp.Simple {
+object App extends IOApp.Simple {
   val python = s"${System.getenv("JAVA_HOME")}/languages/python/scala-pygments/bin/python"
 
   override def run: IO[Unit] =
