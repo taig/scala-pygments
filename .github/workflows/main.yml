@@ -21,12 +21,12 @@ jobs:
         with:
           graalvm: '21.2.0'
           java: 'java11'
-      - name: Install dependencies
-        run: sudo apt-get install cmake pkg-config libicu-dev zlib1g-dev libcurl4-openssl-dev libssl-dev ruby-dev
-      - name: Install ruby
-        run: gu install ruby && ${JAVA_HOME}/languages/ruby/lib/truffle/post_install_hook.sh
-      - name: Install linguist
-        run: gem install github-linguist
+      - name: Install python
+        run: gu install python
+      - name: Python environment
+        run: graalpython -m venv ${JAVA_HOME}/languages/python/scala-pygments/
+      - name: Install pygments
+        run: ${JAVA_HOME}/languages/python/scala-pygments/bin/pip install Pygments
       - name: Tests
         run: sbt +test +It/test
   lint:
