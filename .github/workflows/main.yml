@@ -1,0 +1,69 @@
+name: CI & CD
+
+on:
+  push:
+    branches:
+      - 'main'
+    tags:
+      - '*.*.*'
+
+jobs:
+  test:
+    name: ✅ Unit & integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      - name: Cache
+        uses: coursier/cache-action@v6.1
+      - name: Setup GraalVM environment
+        uses: DeLaGuardo/setup-graalvm@4.0
+        with:
+          graalvm: '21.2.0'
+          java: 'java11'
+      - name: Install dependencies
+        run: sudo apt-get install cmake pkg-config libicu-dev zlib1g-dev libcurl4-openssl-dev libssl-dev ruby-dev
+      - name: Install ruby
+        run: gu install ruby && ${JAVA_HOME}/languages/ruby/lib/truffle/post_install_hook.sh
+      - name: Install linguist
+        run: gem install github-linguist
+      - name: Tests
+        run: sbt +test +It/test
+  lint:
+    name: ⚠️ Fatal warnings and code formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      - name: Cache
+        uses: coursier/cache-action@v6.1
+      - name: Setup GraalVM environment
+        uses: DeLaGuardo/setup-graalvm@4.0
+        with:
+          graalvm: '21.2.0'
+          java: 'java11'
+      - name: Code formatting
+        run: sbt scalafmtCheckAll
+      - name: Fatal warnings
+        run: sbt -Dmode=strict +compile
+  deploy:
+    name: 🚀 Deploy
+    needs: [ test, lint ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.4
+      - name: Cache
+        uses: coursier/cache-action@v6.1
+      - name: Setup GraalVM environment
+        uses: DeLaGuardo/setup-graalvm@4.0
+        with:
+          graalvm: '21.2.0'
+          java: 'java11'
+      - name: Release
+        run: sbt ci-release
+        env:
+          PGP_PASSPHRASE: ${{secrets.PGP_PASSPHRASE}}
+          PGP_SECRET: ${{secrets.PGP_SECRET}}
+          SONATYPE_PASSWORD: ${{secrets.SONATYPE_PASSWORD}}
+          SONATYPE_USERNAME: ${{secrets.SONATYPE_USERNAME}}
