@@ -27,10 +27,10 @@ lazy val core = crossProject(JVMPlatform, JSPlatform)
         Nil
   )
 
-lazy val graalvm = project
-  .in(file("modules/graalvm"))
+lazy val graalvmPython = project
+  .in(file("modules/graalvm-python"))
   .settings(
-    name := "scala-pygments-graalvm",
+    name := "scala-pygments-graalvm-python",
     libraryDependencies ++=
       "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
         Nil

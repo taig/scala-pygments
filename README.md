@@ -34,7 +34,7 @@ ${JAVA_HOME}/languages/python/scala-pygments/bin/pip install Pygments
 ```scala
 libraryDependencies ++=
   "io.taig" %% "scala-pygments-core" % "x.y.z" :: 
-  "io.taig" %% "scala-pygments-graalvm" % "x.y.z" ::
+  "io.taig" %% "scala-pygments-graalvm-python" % "x.y.z" ::
   Nil
 ```
 
