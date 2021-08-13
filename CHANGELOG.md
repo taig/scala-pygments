@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.4
+
+_2021-08-13_
+
+ * Suppress pygments auto appended linebreak
+ * Fix code values wrapped in apostrophes
+
 ## 0.0.3
 
 _2021-08-13_
