@@ -1,5 +1,7 @@
 package io.taig.pygments
 
+import java.nio.file.Path
+
 import cats.effect.std.Semaphore
 import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
@@ -48,7 +50,7 @@ object GraalVmPythonPygments {
   def apply[F[_]](context: Context)(implicit F: Async[F]): F[Pygments[F]] =
     Semaphore[F](1).map(new GraalVmPythonPygments[F](_)(context))
 
-  def default[F[_]](executable: String)(implicit F: Async[F]): Resource[F, Pygments[F]] = {
+  def default[F[_]](python: Path)(implicit F: Async[F]): Resource[F, Pygments[F]] = {
     val context = F.delay {
       Context
         .newBuilder("python")
@@ -58,7 +60,7 @@ object GraalVmPythonPygments {
         .allowNativeAccess(true)
         .allowPolyglotAccess(PolyglotAccess.ALL)
         .option("python.ForceImportSite", "true")
-        .option("python.Executable", executable)
+        .option("python.Executable", python.toString)
         .build()
     }
 
