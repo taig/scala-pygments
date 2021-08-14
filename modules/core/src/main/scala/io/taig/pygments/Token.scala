@@ -15,7 +15,11 @@ object Token {
       case object Preproc extends Variant
       case object PreprocFile extends Variant
       case object Special extends Variant
+
+      val All: Set[Variant] = Set(Hashbang, Multiline, Single, Preproc, PreprocFile, Special)
     }
+
+    val All: Set[Comment] = Set(Comment(None)) ++ Variant.All.map(variant => Comment(Some(variant)))
   }
 
   case object Error extends Token
@@ -35,7 +39,11 @@ object Token {
 
         object Variant {
           case object Pseudo extends Variant
+
+          val All: Set[Variant] = Set(Pseudo)
         }
+
+        val All: Set[Builtin] = Set(Builtin(None)) ++ Variant.All.map(variant => Builtin(Some(variant)))
       }
 
       case object Class extends Variant
@@ -55,7 +63,11 @@ object Token {
 
         object Variant {
           case object Magic extends Variant
+
+          val All: Set[Variant] = Set(Magic)
         }
+
+        val All: Set[Function] = Set(Function(None)) ++ Variant.All.map(variant => Function(Some(variant)))
       }
 
       case object Label extends Variant
@@ -76,11 +88,31 @@ object Token {
           case object Global extends Variant
           case object Instance extends Variant
           case object Magic extends Variant
+
+          val All: Set[Variant] = Set(Class, Global, Instance, Magic)
         }
+
+        val All: Set[Variable] = Set(Variable(None)) ++ Variant.All.map(variant => Variable(Some(variant)))
       }
 
       case object Other extends Variant
+
+      val All: Set[Variant] = Set(
+        Attribute,
+        Class,
+        Constant,
+        Entity,
+        Decorator,
+        Exception,
+        Label,
+        Namespace,
+        Property,
+        Tag,
+        Other
+      ) ++ Builtin.All ++ Function.All ++ Variable.All
     }
+
+    val All: Set[Name] = Set(Name(None)) ++ Variant.All.map(variant => Name(Some(variant)))
   }
 
   final case class Keyword(variant: Option[Keyword.Variant]) extends Token
@@ -95,7 +127,11 @@ object Token {
       case object Pseudo extends Variant
       case object Reserved extends Variant
       case object Type extends Variant
+
+      val All: Set[Variant] = Set(Constant, Declaration, Namespace, Pseudo, Reserved, Type)
     }
+
+    val All: Set[Keyword] = Set(Keyword(None)) ++ Variant.All.map(variant => Keyword(Some(variant)))
   }
 
   final case class Literal(variant: Literal.Variant) extends Token
@@ -123,11 +159,19 @@ object Token {
 
             object Variant {
               case object Long extends Variant
+
+              val All: Set[Variant] = Set(Long)
             }
+
+            val All: Set[Integer] = Set(Integer(None)) ++ Variant.All.map(variant => Integer(Some(variant)))
           }
 
           case object Oct extends Variant
+
+          val All: Set[Variant] = Set(Bin, Float, Hex, Oct) ++ Integer.All
         }
+
+        val All: Set[Number] = Set(Number(None)) ++ Variant.All.map(variant => Number(Some(variant)))
       }
 
       final case class String(variant: Option[String.Variant]) extends Variant
@@ -149,9 +193,18 @@ object Token {
           case object Regex extends Variant
           case object Single extends Variant
           case object Symbol extends Variant
+
+          val All: Set[Variant] =
+            Set(Affix, Backtick, Char, Delimiter, Doc, Double, Escape, Heredoc, Other, Interpol, Regex, Single, Symbol)
         }
+
+        val All: Set[String] = Set(String(None)) ++ Variant.All.map(variant => String(Some(variant)))
       }
+
+      val All: Set[Variant] = Number.All ++ String.All
     }
+
+    val All: Set[Literal] = Variant.All.map(variant => Literal(variant))
   }
 
   case class Operator(variant: Option[Operator.Variant]) extends Token
@@ -161,7 +214,11 @@ object Token {
 
     object Variant {
       case object Word extends Variant
+
+      val All: Set[Variant] = Set(Word)
     }
+
+    val All: Set[Operator] = Set(Operator(None)) ++ Variant.All.map(variant => Operator(Some(variant)))
   }
 
   case object Other extends Token
@@ -175,8 +232,17 @@ object Token {
 
     object Variant {
       case object Whitespace extends Variant
+
+      val All: Set[Variant] = Set(Whitespace)
     }
+
+    val All: Set[Text] = Set(Text(None)) ++ Variant.All.map(variant => Text(Some(variant)))
   }
+
+  val All: Set[Token] = Comment.All ++ Set(Error) ++ Name.All ++ Keyword.All ++ Literal.All ++ Operator.All ++ Set(
+    Other,
+    Punctuation
+  ) ++ Text.All
 
   val parse: String => Option[Token] = value =>
     PartialFunction.condOpt(value.substring(6)) {
