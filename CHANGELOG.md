@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.5
+
+_2021-08-14_
+
+ * Add `Token.All` which provides an exhaustive `Set` of all possible values
+
 ## 0.0.4
 
 _2021-08-13_
