@@ -134,7 +134,7 @@ object Token {
     val All: Set[Keyword] = Set(Keyword(None)) ++ Variant.All.map(variant => Keyword(Some(variant)))
   }
 
-  final case class Literal(variant: Literal.Variant) extends Token
+  final case class Literal(variant: Option[Literal.Variant]) extends Token
 
   object Literal {
     sealed abstract class Variant extends Product with Serializable
@@ -204,7 +204,7 @@ object Token {
       val All: Set[Variant] = Number.All ++ String.All
     }
 
-    val All: Set[Literal] = Variant.All.map(variant => Literal(variant))
+    val All: Set[Literal] = Set(Literal(None)) ++ Variant.All.map(variant => Literal(Some(variant)))
   }
 
   case class Operator(variant: Option[Operator.Variant]) extends Token
@@ -262,26 +262,28 @@ object Token {
       case "Keyword.Pseudo"              => Keyword(Some(Keyword.Variant.Pseudo))
       case "Keyword.Reserved"            => Keyword(Some(Keyword.Variant.Reserved))
       case "Keyword.Type"                => Keyword(Some(Keyword.Variant.Type))
-      case "Literal.Number.Bin"          => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Bin)))
-      case "Literal.Number.Float"        => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Float)))
-      case "Literal.Number.Hex"          => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Hex)))
-      case "Literal.Number.Integer"      => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Integer(None))))
-      case "Literal.Number.Integer.Long" => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Integer(Some(Literal.Variant.Number.Variant.Integer.Variant.Long)))))
-      case "Literal.Number.Oct"          => Literal(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Oct)))
-      case "Literal.String"              => Literal(Literal.Variant.String(None))
-      case "Literal.String.Affix"        => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Affix)))
-      case "Literal.String.Backtick"     => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Backtick)))
-      case "Literal.String.Char"         => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Char)))
-      case "Literal.String.Delimiter"    => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Delimiter)))
-      case "Literal.String.Doc"          => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Doc)))
-      case "Literal.String.Double"       => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Double)))
-      case "Literal.String.Escape"       => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Escape)))
-      case "Literal.String.Heredoc"      => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Heredoc)))
-      case "Literal.String.Interpol"     => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Interpol)))
-      case "Literal.String.Other"        => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Other)))
-      case "Literal.String.Regex"        => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Regex)))
-      case "Literal.String.Single"       => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Single)))
-      case "Literal.String.Symbol"       => Literal(Literal.Variant.String(Some(Literal.Variant.String.Variant.Symbol)))
+      case "Literal"                     => Literal(None)
+      case "Literal.Number"              => Literal(Some(Literal.Variant.Number(None)))
+      case "Literal.Number.Bin"          => Literal(Some(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Bin))))
+      case "Literal.Number.Float"        => Literal(Some(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Float))))
+      case "Literal.Number.Hex"          => Literal(Some(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Hex))))
+      case "Literal.Number.Integer"      => Literal(Some(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Integer(None)))))
+      case "Literal.Number.Integer.Long" => Literal(Some(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Integer(Some(Literal.Variant.Number.Variant.Integer.Variant.Long))))))
+      case "Literal.Number.Oct"          => Literal(Some(Literal.Variant.Number(Some(Literal.Variant.Number.Variant.Oct))))
+      case "Literal.String"              => Literal(Some(Literal.Variant.String(None)))
+      case "Literal.String.Affix"        => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Affix))))
+      case "Literal.String.Backtick"     => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Backtick))))
+      case "Literal.String.Char"         => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Char))))
+      case "Literal.String.Delimiter"    => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Delimiter))))
+      case "Literal.String.Doc"          => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Doc))))
+      case "Literal.String.Double"       => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Double))))
+      case "Literal.String.Escape"       => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Escape))))
+      case "Literal.String.Heredoc"      => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Heredoc))))
+      case "Literal.String.Interpol"     => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Interpol))))
+      case "Literal.String.Other"        => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Other))))
+      case "Literal.String.Regex"        => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Regex))))
+      case "Literal.String.Single"       => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Single))))
+      case "Literal.String.Symbol"       => Literal(Some(Literal.Variant.String(Some(Literal.Variant.String.Variant.Symbol))))
       case "Name"                        => Name(None)
       case "Name.Attribute"              => Name(Some(Name.Variant.Attribute))
       case "Name.Builtin"                => Name(Some(Name.Variant.Builtin(None)))
