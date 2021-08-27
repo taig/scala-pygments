@@ -1,14 +1,16 @@
 package io.taig.pygments
 
-import java.nio.file.Paths
-
 import cats.effect.{IO, Resource}
 
-final class GraalVmPythonPygmentsIntegrationTest extends PygmentsTest {
-  override val pygments: Resource[IO, Pygments[IO]] = {
-    val executable = Paths.get(System.getenv("JAVA_HOME") + "/languages/python/scala-pygments/bin/python")
-    GraalVmPythonPygments.default[IO](executable)
-  }
+import java.nio.file.{Path, Paths}
+
+object GraalVmPythonPygmentsIntegrationTest {
+  val Executable: Path = Paths.get(System.getenv("JAVA_HOME") + "/languages/python/scala-pygments/bin/python")
+}
+
+final class DefaultGraalVmPythonPygmentsIntegrationTest extends PygmentsTest {
+  override val pygments: Resource[IO, Pygments[IO]] =
+    GraalVmPythonPygments.default[IO](GraalVmPythonPygmentsIntegrationTest.Executable)
 
   test("don't wrap values in apostrophes") {
     pygments.use { pygments =>
@@ -33,4 +35,9 @@ final class GraalVmPythonPygmentsIntegrationTest extends PygmentsTest {
       }
     }
   }
+}
+
+final class PooledGraalVmPythonPygmentsIntegrationTest extends PygmentsTest {
+  override val pygments: Resource[IO, Pygments[IO]] =
+    GraalVmPythonPygments.pooled[IO](GraalVmPythonPygmentsIntegrationTest.Executable, size = 2)
 }

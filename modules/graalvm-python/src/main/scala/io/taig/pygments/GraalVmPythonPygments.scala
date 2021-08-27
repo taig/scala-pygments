@@ -1,14 +1,14 @@
 package io.taig.pygments
 
-import java.nio.file.Path
-
-import cats.effect.std.Semaphore
+import cats.effect.std.{Queue, Semaphore}
 import cats.effect.{Async, Resource, Sync}
 import cats.syntax.all._
 import org.graalvm.polyglot.{Context, HostAccess, PolyglotAccess}
 
-final class GraalVmPythonPygments[F[_]](lock: Semaphore[F])(context: Context)(implicit F: Sync[F]) extends Pygments[F] {
-  override def tokenize(lexer: String, code: String): F[List[Fragment]] = lock.permit.surround {
+import java.nio.file.Path
+
+final class GraalVmPythonPygments[F[_]](contexts: Resource[F, Context])(implicit F: Sync[F]) extends Pygments[F] {
+  override def tokenize(lexer: String, code: String): F[List[Fragment]] = contexts.use { context =>
     F.blocking {
       context.getPolyglotBindings.putMember("code", code)
 
@@ -67,10 +67,24 @@ final class GraalVmPythonPygments[F[_]](lock: Semaphore[F])(context: Context)(im
 
 object GraalVmPythonPygments {
   def apply[F[_]](context: Context)(implicit F: Async[F]): F[Pygments[F]] =
-    Semaphore[F](1).map(new GraalVmPythonPygments[F](_)(context))
+    Semaphore[F](1).map(lock => new GraalVmPythonPygments[F](lock.permit.as(context)))
 
-  def default[F[_]](python: Path)(implicit F: Async[F]): Resource[F, Pygments[F]] = {
-    val context = F.delay {
+  def default[F[_]](executable: Path)(implicit F: Async[F]): Resource[F, Pygments[F]] =
+    context[F](executable).evalMap(GraalVmPythonPygments[F])
+
+  def pooled[F[_]: Async](executable: Path, size: Int): Resource[F, Pygments[F]] =
+    Resource.eval(Queue.bounded[F, Context](size)).flatMap { queue =>
+      val contexts = Resource.make(queue.take)(queue.offer)
+
+      List
+        .fill(size)(context[F](executable))
+        .sequence
+        .evalTap(_.traverse_(queue.offer))
+        .as(new GraalVmPythonPygments[F](contexts))
+    }
+
+  def context[F[_]](executable: Path)(implicit F: Sync[F]): Resource[F, Context] = Resource.fromAutoCloseable {
+    F.delay {
       Context
         .newBuilder("python")
         .allowExperimentalOptions(true)
@@ -79,10 +93,8 @@ object GraalVmPythonPygments {
         .allowNativeAccess(true)
         .allowPolyglotAccess(PolyglotAccess.ALL)
         .option("python.ForceImportSite", "true")
-        .option("python.Executable", python.toString)
+        .option("python.Executable", executable.toString)
         .build()
     }
-
-    Resource.fromAutoCloseable(context).evalMap(GraalVmPythonPygments[F])
   }
 }
