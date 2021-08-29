@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.6
+
+_2021-09-29_
+
+ * [#2] Pooled instance (#3)
+ * Upgrade to cats-effect 3.2.5
+
 ## 0.0.5
 
 _2021-08-14_
