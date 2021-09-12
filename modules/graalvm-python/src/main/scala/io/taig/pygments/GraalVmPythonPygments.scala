@@ -13,10 +13,7 @@ final class GraalVmPythonPygments[F[_]](contexts: Resource[F, Context])(implicit
       context.getPolyglotBindings.putMember("code", code)
 
       val script =
-        s"""from pygments import highlight
-           |from pygments.lexers import ${lexer}Lexer
-           |from pygments.formatters import RawTokenFormatter
-           |import polyglot
+        s"""from pygments.lexers import ${lexer}Lexer
            |
            |highlight(polyglot.import_value('code'), ${lexer}Lexer(), RawTokenFormatter())""".stripMargin
 
@@ -73,19 +70,18 @@ object GraalVmPythonPygments {
     context[F](executable).evalMap(GraalVmPythonPygments[F])
 
   def pooled[F[_]: Async](executable: Path, size: Int): Resource[F, Pygments[F]] =
-    Resource.eval(Queue.bounded[F, Context](size)).flatMap { queue =>
+    Resource.eval(Queue.unbounded[F, Context]).flatMap { queue =>
       val contexts = Resource.make(queue.take)(queue.offer)
 
       List
         .fill(size)(context[F](executable))
-        .sequence
-        .evalTap(_.traverse_(queue.offer))
+        .parTraverse(_.evalTap(queue.offer))
         .as(new GraalVmPythonPygments[F](contexts))
     }
 
   def context[F[_]](executable: Path)(implicit F: Sync[F]): Resource[F, Context] = Resource.fromAutoCloseable {
     F.delay {
-      Context
+      val context = Context
         .newBuilder("python")
         .allowExperimentalOptions(true)
         .allowHostAccess(HostAccess.ALL)
@@ -95,6 +91,15 @@ object GraalVmPythonPygments {
         .option("python.ForceImportSite", "true")
         .option("python.Executable", executable.toString)
         .build()
+
+      context.eval(
+        "python",
+        """from pygments import highlight
+          |from pygments.formatters import RawTokenFormatter
+          |import polyglot""".stripMargin
+      )
+
+      context
     }
   }
 }
