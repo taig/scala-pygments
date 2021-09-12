@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.8
+
+_2021-09-12_
+
+ * Initialize pooled instance in background
+
 ## 0.0.7
 
 _2021-09-12_
