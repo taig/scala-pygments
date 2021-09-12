@@ -1,7 +1,7 @@
 # Scala Pygments
 
 [![CI & CD](https://github.com/taig/scala-pygments/actions/workflows/main.yml/badge.svg)](https://github.com/taig/scala-pygments/actions/workflows/main.yml)
-[![scala-pygments-graalvm Scala version support](https://index.scala-lang.org/taig/scala-pygments/scala-pygments-graalvm/latest-by-scala-version.svg)](https://index.scala-lang.org/taig/scala-pygments/scala-pygments-graalvm)
+[![scala-pygments-core Scala version support](https://index.scala-lang.org/taig/scala-pygments/scala-pygments-core/latest-by-scala-version.svg)](https://index.scala-lang.org/taig/scala-pygments/scala-pygments-core)
 
 
 > A Scala wrapper around [Pygments](https://github.com/pygments/pygments) based on [GraalVM's Python Runtime](https://www.graalvm.org/reference-manual/python/)
