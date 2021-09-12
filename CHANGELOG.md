@@ -1,8 +1,17 @@
 # Changelog
 
+## 0.0.7
+
+_2021-09-12_
+
+ * Load pygments dependencies as part of context initialization
+ * Upgrade to cats-effect 3.2.8
+ * Upgrade to scala 3.0.2
+ * Upgrade to munit 0.7.29
+
 ## 0.0.6
 
-_2021-09-29_
+_2021-08-29_
 
  * [#2] Pooled instance (#3)
  * Upgrade to cats-effect 3.2.5
