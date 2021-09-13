@@ -61,3 +61,9 @@ object App extends IOApp.Simple {
 sbt> run
 List(Fragment(Name(None),'println'), Fragment(Punctuation,'('), Fragment(Literal(String(None)),'"Hello world!"'), Fragment(Punctuation,')'), Fragment(Text(None),'\n'))
 ```
+
+## Benchmarks
+
+```shell
+> benchmarks/Jmh/run -wi 5 -i 5 -f1 -t1
+```
