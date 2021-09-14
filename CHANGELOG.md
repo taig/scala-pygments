@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.9
+
+_2021-09-14_
+
+ * Reuse context engine in pooled instances
+ * Add benchmarks module
+
 ## 0.0.8
 
 _2021-09-12_

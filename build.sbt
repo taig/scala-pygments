@@ -18,7 +18,7 @@ lazy val root = project
   .in(file("."))
   .settings(noPublishSettings)
   .settings(
-    name := "scala-linguist"
+    name := "scala-pygments"
   )
   .aggregate(core.jvm, core.js, graalvmPython, benchmarks)
 
