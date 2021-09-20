@@ -14,8 +14,8 @@ ThisBuild / licenses := List("MIT" -> url("https://raw.githubusercontent.com/tai
 ThisBuild / scalaVersion := Version.Scala2
 ThisBuild / versionScheme := Some("early-semver")
 
-//ThisBuild / Test / parallelExecution := false
-//ThisBuild / Test / testOptions += Tests.Argument(TestFrameworks.MUnit, "-b")
+ThisBuild / Test / parallelExecution := false
+ThisBuild / Test / testOptions += Tests.Argument(TestFrameworks.MUnit, "-b")
 
 lazy val root = project
   .in(file("."))
