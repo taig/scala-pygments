@@ -64,14 +64,17 @@ object GraalVmPythonPygments {
   def default[F[_]: Async](executable: Path): Resource[F, Pygments[F]] =
     context[F](executable, None).evalMap(GraalVmPythonPygments[F])
 
-  def pooled[F[_]: Async](executable: Path, size: Int): Resource[F, Pygments[F]] =
+  def pooled[F[_]](executable: Path, size: Int)(implicit F: Async[F]): Resource[F, Pygments[F]] =
     Resource.eval(Queue.unbounded[F, Context]).flatMap { queue =>
       val contexts = Resource.make(queue.take)(queue.offer)
-      val engine = Engine.create()
+      val engine = Resource.fromAutoCloseable(F.delay(Engine.create()))
 
-      List
-        .fill(size)(context[F](executable, Some(engine)))
-        .parTraverse_(_.evalMap(queue.offer))
+      engine
+        .flatMap { engine =>
+          List
+            .fill(size)(context[F](executable, Some(engine)))
+            .parTraverse_(_.evalMap(queue.offer))
+        }
         .start
         .as(new GraalVmPythonPygments[F](contexts))
     }
