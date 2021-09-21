@@ -1,11 +1,13 @@
 # Changelog
 
-## 0.0.9
+## 0.0.10
 
-_2021-09-14_
+_2021-09-21_
 
  * Reuse context engine in pooled instances
+ * Fix pooled shared engine not being closed
  * Add benchmarks module
+ * Upgrade to cats-effect 3.2.9
 
 ## 0.0.8
 
