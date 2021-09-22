@@ -61,8 +61,7 @@ object GraalVmPythonPygments {
   def apply[F[_]: Async](context: Context): F[Pygments[F]] =
     Semaphore[F](1).map(lock => new GraalVmPythonPygments[F](lock.permit.as(context)))
 
-  def default[F[_]: Async](executable: Path): Resource[F, Pygments[F]] =
-    context[F](executable, None).evalMap(GraalVmPythonPygments[F])
+  def default[F[_]: Async](executable: Path): Resource[F, Pygments[F]] = pooled(executable, size = 1)
 
   def pooled[F[_]](executable: Path, size: Int)(implicit F: Async[F]): Resource[F, Pygments[F]] =
     Resource.eval(Queue.unbounded[F, Context]).flatMap { queue =>
