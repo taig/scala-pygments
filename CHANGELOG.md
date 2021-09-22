@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.11
+
+_2021-09-22_
+
+ * Change default initialization to pooled(1) to leverage asynchronous start
+ * Set test fixture fields to null in afterAll
+
 ## 0.0.10
 
 _2021-09-21_
