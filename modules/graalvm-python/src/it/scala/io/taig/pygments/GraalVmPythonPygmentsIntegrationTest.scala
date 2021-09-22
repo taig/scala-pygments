@@ -20,7 +20,11 @@ abstract class GraalVmPythonPygmentsIntegrationTest extends PygmentsTest {
       this.release = release
     }
 
-    override def afterAll(): Unit = release.unsafeRunSync()
+    override def afterAll(): Unit = {
+      release.unsafeRunSync()
+      this.instance = null
+      this.release = null
+    }
   }
 }
 
