@@ -7,8 +7,9 @@ import org.graalvm.polyglot.{Context, Engine, HostAccess, PolyglotAccess, Source
 
 import java.nio.file.Path
 
-final class GraalVmPythonPygments[F[_]](contexts: Resource[F, Context])(implicit F: Sync[F]) extends Pygments[F] {
-  override def tokenize(lexer: String, code: String): F[List[Fragment]] = contexts.use { context =>
+final class GraalVmPythonPygments[F[_]](contexts: Resource[F, Either[Throwable, Context]])(implicit F: Sync[F])
+    extends Pygments[F] {
+  override def tokenize(lexer: String, code: String): F[List[Fragment]] = contexts.rethrow.use { context =>
     F.blocking {
       context.getPolyglotBindings.putMember("code", code)
 
@@ -32,19 +33,19 @@ final class GraalVmPythonPygments[F[_]](contexts: Resource[F, Context])(implicit
 
 object GraalVmPythonPygments {
   def apply[F[_]: Async](context: Context): F[Pygments[F]] =
-    Semaphore[F](1).map(lock => new GraalVmPythonPygments[F](lock.permit.as(context)))
+    Semaphore[F](1).map(lock => new GraalVmPythonPygments[F](lock.permit.as(context.asRight)))
 
   def default[F[_]: Async](executable: Path): Resource[F, Pygments[F]] = pooled(executable, size = 1)
 
   def pooled[F[_]](executable: Path, size: Int)(implicit F: Async[F]): Resource[F, Pygments[F]] =
-    Resource.eval(Queue.unbounded[F, Context]).flatMap { queue =>
+    Resource.eval(Queue.unbounded[F, Either[Throwable, Context]]).flatMap { queue =>
       val contexts = Resource.make(queue.take)(queue.offer)
       val engine = Resource.fromAutoCloseable(F.delay(Engine.create()))
 
       engine
         .flatMap { engine =>
           List
-            .fill(size)(context[F](executable, Some(engine)))
+            .fill(size)(context[F](executable, Some(engine)).attempt)
             .parTraverse_(_.evalMap(queue.offer))
         }
         .start
