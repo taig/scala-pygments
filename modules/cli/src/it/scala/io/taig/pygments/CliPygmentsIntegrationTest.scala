@@ -1,8 +1,6 @@
 package io.taig.pygments
 
-import cats.effect.{IO, Resource}
-
-import java.nio.file.{Path, Paths}
+import cats.effect.IO
 
 final class CliPygmentsIntegrationTest extends PygmentsTest {
   override val pygments: Fixture[Pygments[IO]] = new Fixture[Pygments[IO]]("pygments") {
