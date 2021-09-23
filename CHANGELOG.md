@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.0.12
+
+_2021-09-23_
+
+ * Add cli module
+ * Propagate context initialization errors
+ * Upgrade to sbt-houserules 0.3.14
+
 ## 0.0.11
 
 _2021-09-22_
