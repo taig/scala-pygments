@@ -33,8 +33,9 @@ ${JAVA_HOME}/languages/python/scala-pygments/bin/pip install Pygments
 
 ```scala
 libraryDependencies ++=
-  "io.taig" %% "scala-pygments-core" % "x.y.z" :: 
+  "io.taig" %%% "scala-pygments-core" % "x.y.z" :: 
   "io.taig" %% "scala-pygments-graalvm-python" % "x.y.z" ::
+  "io.taig" %% "scala-pygments-cli" % "x.y.z" ::
   Nil
 ```
 
@@ -66,4 +67,14 @@ List(Fragment(Name(None),'println'), Fragment(Punctuation,'('), Fragment(Literal
 
 ```shell
 > benchmarks/Jmh/run -wi 10 -i 5 -f1 -t4
+[info] Benchmark                                              Mode  Cnt     Score    Error  Units
+[info] CliTokenizeBenchmark.tokenizeLong                     thrpt    5    12,419 ±  0,469  ops/s
+[info] CliTokenizeBenchmark.tokenizeMedium                   thrpt    5    16,245 ±  0,643  ops/s
+[info] CliTokenizeBenchmark.tokenizeShort                    thrpt    5    16,699 ±  0,391  ops/s
+[info] GraalVmPythonDefaultTokenizeBenchmark.tokenizeLong    thrpt    5     0,958 ±  0,063  ops/s
+[info] GraalVmPythonDefaultTokenizeBenchmark.tokenizeMedium  thrpt    5    24,724 ±  0,239  ops/s
+[info] GraalVmPythonDefaultTokenizeBenchmark.tokenizeShort   thrpt    5   625,756 ± 24,527  ops/s
+[info] GraalVmPythonPooledTokenizeBenchmark.tokenizeLong     thrpt    5     1,475 ±  0,375  ops/s
+[info] GraalVmPythonPooledTokenizeBenchmark.tokenizeMedium   thrpt    5    87,482 ±  1,239  ops/s
+[info] GraalVmPythonPooledTokenizeBenchmark.tokenizeShort    thrpt    5  2374,671 ± 32,192  ops/s
 ```

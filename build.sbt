@@ -61,4 +61,4 @@ lazy val benchmarks = project
   .settings(
     name := "scala-pygments-benchmarks"
   )
-  .dependsOn(graalvmPython)
+  .dependsOn(graalvmPython, cli)

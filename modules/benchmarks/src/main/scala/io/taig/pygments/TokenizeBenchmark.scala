@@ -62,3 +62,7 @@ class GraalVmPythonPooledTokenizeBenchmark extends TokenizeBenchmark {
   override val pygments: Resource[IO, Pygments[IO]] =
     GraalVmPythonPygments.pooled(TokenizeBenchmark.Executable, size = 4)
 }
+
+class CliTokenizeBenchmark extends TokenizeBenchmark {
+  override def pygments: Resource[IO, Pygments[IO]] = Resource.eval(CliPygments[IO])
+}
