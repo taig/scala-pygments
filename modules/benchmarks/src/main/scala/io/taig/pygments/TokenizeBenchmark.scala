@@ -64,5 +64,5 @@ class GraalVmPythonPooledTokenizeBenchmark extends TokenizeBenchmark {
 }
 
 class CliTokenizeBenchmark extends TokenizeBenchmark {
-  override def pygments: Resource[IO, Pygments[IO]] = Resource.eval(CliPygments[IO])
+  override def pygments: Resource[IO, Pygments[IO]] = Resource.eval(CliPygments[IO](concurrency = Int.MaxValue))
 }

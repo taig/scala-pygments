@@ -13,7 +13,7 @@ final class CliPygmentsIntegrationTest extends PygmentsTest {
     override def apply(): Pygments[IO] = instance
 
     override def beforeAll(): Unit =
-      this.instance = CliPygments[IO].unsafeRunSync()
+      this.instance = CliPygments[IO](Int.MaxValue).unsafeRunSync()
 
     override def afterAll(): Unit =
       this.instance = null
