@@ -43,4 +43,4 @@ jobs:
       - name: Code formatting
         run: sbt scalafmtCheckAll
       - name: Fatal warnings
-        run: sbt -Dmode=strict +compile
+        run: sbt -Dmode=strict +It/compile
