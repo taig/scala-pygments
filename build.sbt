@@ -20,7 +20,7 @@ lazy val root = project
   .settings(
     name := "scala-pygments"
   )
-  .aggregate(core.jvm, core.js, graalvmPython, benchmarks)
+  .aggregate(core.jvm, core.js, graalvmPython, cli, benchmarks)
 
 lazy val core = crossProject(JVMPlatform, JSPlatform)
   .crossType(CrossType.Pure)
@@ -38,6 +38,16 @@ lazy val graalvmPython = project
   .in(file("modules/graalvm-python"))
   .settings(
     name := "scala-pygments-graalvm-python",
+    libraryDependencies ++=
+      "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
+        Nil
+  )
+  .dependsOn(core.jvm % "compile->compile;test->test")
+
+lazy val cli = project
+  .in(file("modules/cli"))
+  .settings(
+    name := "scala-pygments-cli",
     libraryDependencies ++=
       "org.typelevel" %% "cats-effect" % Version.CatsEffect ::
         Nil

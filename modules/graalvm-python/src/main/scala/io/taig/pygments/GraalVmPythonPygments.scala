@@ -26,34 +26,7 @@ final class GraalVmPythonPygments[F[_]](contexts: Resource[F, Context])(implicit
       }
 
       bytes
-    }.map { bytes =>
-      val builder = List.newBuilder[Fragment]
-      val lines = new String(bytes).split('\n')
-      val length = lines.length
-      var index = 0
-
-      while (index < length) {
-        if (index == length - 1 && !code.endsWith("\n")) index += 1
-        else {
-          val line = lines(index)
-
-          line.indexOf('\t') match {
-            case -1 => throw new IllegalStateException("Unexpected pygments format")
-            case index =>
-              val token = line.substring(0, index)
-              val code = line.substring(index + 2, line.length - 1)
-              Token.parse(token) match {
-                case Some(token) => builder += Fragment(token, code)
-                case None        => throw new IllegalStateException(s"Unknown token '$token'")
-              }
-          }
-
-          index += 1
-        }
-      }
-
-      builder.result()
-    }
+    }.map(Pygments.parseFragmentResult(code, _))
   }
 }
 

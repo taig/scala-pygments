@@ -35,26 +35,6 @@ object GraalVmPythonPygmentsIntegrationTest {
 final class DefaultGraalVmPythonPygmentsIntegrationTest extends GraalVmPythonPygmentsIntegrationTest {
   override val resource: Resource[IO, Pygments[IO]] =
     GraalVmPythonPygments.default[IO](GraalVmPythonPygmentsIntegrationTest.Executable)
-
-  test("don't wrap values in apostrophes") {
-    assertIO(
-      obtained = pygments().tokenize("Java", "foobar").map(_.headOption.map(_.code)),
-      returns = Some("foobar")
-    )
-  }
-
-  test("don't add a trailing linebreak") {
-    for {
-      withLinebreak <- pygments().tokenize("Java", "foobar\n")
-      withoutLinebreak <- pygments().tokenize("Java", "foobar")
-    } yield {
-      assertEquals(
-        obtained = withLinebreak,
-        expected = List(Fragment(Token.Name(None), "foobar"), Fragment(Token.Text(None), "\\n"))
-      )
-      assertEquals(obtained = withoutLinebreak, expected = List(Fragment(Token.Name(None), "foobar")))
-    }
-  }
 }
 
 final class PooledGraalVmPythonPygmentsIntegrationTest extends GraalVmPythonPygmentsIntegrationTest {

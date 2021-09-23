@@ -165,6 +165,26 @@ abstract class PygmentsTest extends CatsEffectSuite {
       .map(obtained => assert(obtained.nonEmpty))
   }
 
+  test("don't wrap values in apostrophes") {
+    assertIO(
+      obtained = pygments().tokenize("Java", "foobar").map(_.headOption.map(_.code)),
+      returns = Some("foobar")
+    )
+  }
+
+  test("don't add a trailing linebreak") {
+    for {
+      withLinebreak <- pygments().tokenize("Java", "foobar\n")
+      withoutLinebreak <- pygments().tokenize("Java", "foobar")
+    } yield {
+      assertEquals(
+        obtained = withLinebreak,
+        expected = List(Fragment(Token.Name(None), "foobar"), Fragment(Token.Text(None), "\\n"))
+      )
+      assertEquals(obtained = withoutLinebreak, expected = List(Fragment(Token.Name(None), "foobar")))
+    }
+  }
+
   test("concurrent access") {
     val java = List.fill(100)(("Java", HelloWord.Java))
     val javascript = List.fill(100)(("Javascript", HelloWord.JavaScript))
