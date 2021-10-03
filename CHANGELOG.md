@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.0.14
+
+_2021-10-03_
+
+ * Fix line break at end of file handling across different lexers
+ * Upgrade to munit-cats-effect 1.0.6
+
 ## 0.0.13
 
 _2021-09-23_
