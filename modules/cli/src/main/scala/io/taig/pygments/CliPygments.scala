@@ -20,7 +20,6 @@ final class CliPygments[F[_]](runtime: Resource[F, Runtime])(implicit F: Sync[F]
 
       try input.readAllBytes()
       finally input.close()
-
     }.map(Pygments.parseFragmentResult(code, _))
   }
 }

@@ -172,7 +172,7 @@ abstract class PygmentsTest extends CatsEffectSuite {
     )
   }
 
-  test("don't add a trailing linebreak") {
+  test("don't add a trailing linebreak (Java)") {
     for {
       withLinebreak <- pygments().tokenize("Java", "foobar\n")
       withoutLinebreak <- pygments().tokenize("Java", "foobar")
@@ -182,6 +182,16 @@ abstract class PygmentsTest extends CatsEffectSuite {
         expected = List(Fragment(Token.Name(None), "foobar"), Fragment(Token.Text(None), "\\n"))
       )
       assertEquals(obtained = withoutLinebreak, expected = List(Fragment(Token.Name(None), "foobar")))
+    }
+  }
+
+  test("don't add a trailing linebreak (Html)") {
+    for {
+      withLinebreak <- pygments().tokenize("Html", "foobar\n")
+      withoutLinebreak <- pygments().tokenize("Html", "foobar")
+    } yield {
+      assertEquals(obtained = withLinebreak, expected = List(Fragment(Token.Text(None), "foobar\\n")))
+      assertEquals(obtained = withoutLinebreak, expected = List(Fragment(Token.Text(None), "foobar")))
     }
   }
 

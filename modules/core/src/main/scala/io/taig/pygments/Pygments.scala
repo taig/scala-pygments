@@ -5,30 +5,27 @@ abstract class Pygments[F[_]] {
 }
 
 object Pygments {
+  private val Linebreak = "\\n"
+
   def parseFragmentResult(code: String, result: Array[Byte]): List[Fragment] = {
+    val endsWithLinebreak = code.endsWith("\n")
     val builder = List.newBuilder[Fragment]
     val lines = new String(result).split('\n')
     val length = lines.length
     var index = 0
 
     while (index < length) {
-      if (index == length - 1 && !code.endsWith("\n")) index += 1
-      else {
-        val line = lines(index)
+      val line = lines(index)
 
-        line.indexOf('\t') match {
-          case -1 => throw new IllegalStateException("Unexpected pygments format")
-          case index =>
-            val token = line.substring(0, index)
-            val code = line.substring(index + 2, line.length - 1)
-            Token.parse(token) match {
-              case Some(token) => builder += Fragment(token, code)
-              case None        => throw new IllegalStateException(s"Unknown token '$token'")
-            }
-        }
+      if (index == length - 1 && !endsWithLinebreak) {
+        val fragment = Fragment.unsafeParse(line)
+        if (fragment.code == Linebreak) ()
+        else if (fragment.code.endsWith(Linebreak))
+          builder += fragment.copy(code = fragment.code.dropRight(Linebreak.length))
+        else builder += fragment
+      } else builder += Fragment.unsafeParse(line)
 
-        index += 1
-      }
+      index += 1
     }
 
     builder.result()
