@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.0.15
+
+_2021-11-06_
+
+ * Upgrade to scala 3.1.0
+ * Upgrade to scala 2.13.7
+ * Upgrade to sbt-scalajs 1.7.1
+ * Upgrade to sbt-houserules 0.3.15
+
 ## 0.0.14
 
 _2021-10-03_
