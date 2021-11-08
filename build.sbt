@@ -3,7 +3,7 @@ val Version = new {
   val Munit = "0.7.29"
   val MunitCatsEffect = "1.0.6"
   val Scala2 = "2.13.6"
-  val Scala3 = "3.0.2"
+  val Scala3 = "3.1.0"
 }
 
 ThisBuild / crossScalaVersions := Version.Scala2 :: Version.Scala3 :: Nil
