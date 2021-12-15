@@ -6,7 +6,7 @@ import java.nio.file.{Path, Paths}
 import scala.concurrent.duration._
 
 abstract class GraalVmPythonPygmentsIntegrationTest extends PygmentsTest {
-  override val munitTimeout: Duration = 1.minute
+  override val munitTimeout: Duration = 2.minutes
 
   def resource: Resource[IO, Pygments[IO]]
 
