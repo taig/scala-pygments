@@ -3,8 +3,11 @@ package io.taig.pygments
 import cats.effect.{IO, Resource}
 
 import java.nio.file.{Path, Paths}
+import scala.concurrent.duration._
 
 abstract class GraalVmPythonPygmentsIntegrationTest extends PygmentsTest {
+  override val munitTimeout: Duration = 1.minute
+
   def resource: Resource[IO, Pygments[IO]]
 
   override val pygments: Fixture[Pygments[IO]] = new Fixture[Pygments[IO]]("pygments") {

@@ -14,16 +14,15 @@ GraalVM with support for Python must be used as the Java runtime
 gu install python
 ```
 
-Pygments must be installed in a GraalVM Python environment  
-
-```
-pip install Pygments
-```
-
-To run the integration tests, a python environment must first be created
+Create a Python environment for scala-pygments
 
 ```
 graalpython -m venv ${JAVA_HOME}/languages/python/scala-pygments/
+```
+
+Install Pygments in the new environment  
+
+```
 ${JAVA_HOME}/languages/python/scala-pygments/bin/pip install Pygments
 ```
 
